@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="book-detail-layout">
+        <div class="book-detail-image">
+            {% if book.cover_image %}
+                <img src="{{ book.cover_image }}" alt="{{ book.title }}">
+            {% else %}
+                <div class="placeholder-cover-large">📚</div>
+            {% endif %}
+        </div>
+        
+        <div class="book-detail-info">
+            <h2>{{ book.title }}</h2>
+            <p class="author"><strong>Author:</strong> {{ book.author }}</p>
+            <p class="category"><strong>Category:</strong> {{ book.category.name if book.category else 'Uncategorized' }}</p>
+            <p class="isbn"><strong>ISBN:</strong> {{ book.isbn or 'N/A' }}</p>
+            <p class="format"><strong>Format:</strong> {{ book.file_format }}</p>
+            <p class="price"><strong>Price:</strong> ${{ "%.2f"|format(book.price) }}</p>
+            
+            <div class="rating">
+                <strong>Rating:</strong> ⭐ {{ "%.1f"|format(book.average_rating) }} ({{ book.review_count }} reviews)
+            </div>
+            
+            <div class="description">
+                <h3>Description</h3>
+                <p>{{ book.description }}</p>
+            </div>
+            
+            <div class="book-actions">
+                {% if current_user.is_authenticated %}
+                    {% if has_purchased %}
+                        <a href="{{ url_for('main.download_book', book_id=book.id) }}" class="btn btn-success">Download Book</a>
+                        <a href="{{ url_for('main.add_review', book_id=book.id) }}" class="btn btn-primary">Write a Review</a>
+                    {% else %}
+                        <form method="POST" action="{{ url_for('main.add_to_cart', book_id=book.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" class="btn btn-success">Add to Cart</button>
+                        </form>
+                    {% endif %}
+                {% else %}
+                    <p><a href="{{ url_for('auth.login') }}">Login</a> to purchase this book.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Reviews Section -->
+    <div class="reviews-section">
+        <h3>Customer Reviews</h3>
+        {% if reviews %}
+            {% for review in reviews %}
+                <div class="review">
+                    <div class="review-header">
+                        <strong>{{ review.user.username }}</strong>
+                        <span class="rating">{{ '⭐' * review.rating }}</span>
+                        <span class="date">{{ review.created_at.strftime('%Y-%m-%d') }}</span>
+                    </div>
+                    <p>{{ review.comment }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No reviews yet. Be the first to review this book!</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

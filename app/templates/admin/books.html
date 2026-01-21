@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Manage Books</h2>
+    
+    <a href="{{ url_for('admin.add_book') }}" class="btn btn-primary">Add New Book</a>
+    
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books.items %}
+                <tr>
+                    <td>{{ book.id }}</td>
+                    <td>{{ book.title }}</td>
+                    <td>{{ book.author }}</td>
+                    <td>{{ book.category.name if book.category else 'N/A' }}</td>
+                    <td>${{ "%.2f"|format(book.price) }}</td>
+                    <td>{{ book.stock }}</td>
+                    <td>
+                        <a href="{{ url_for('admin.edit_book', book_id=book.id) }}" class="btn btn-sm btn-primary">Edit</a>
+                        <form method="POST" action="{{ url_for('admin.delete_book', book_id=book.id) }}" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    {% if books.pages > 1 %}
+        <div class="pagination">
+            {% if books.has_prev %}
+                <a href="{{ url_for('admin.books', page=books.prev_num) }}" class="btn">Previous</a>
+            {% endif %}
+            <span>Page {{ books.page }} of {{ books.pages }}</span>
+            {% if books.has_next %}
+                <a href="{{ url_for('admin.books', page=books.next_num) }}" class="btn">Next</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

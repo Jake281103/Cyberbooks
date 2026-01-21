@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>My Profile</h2>
+    
+    <div class="profile-info">
+        <p><strong>Username:</strong> {{ current_user.username }}</p>
+        <p><strong>Email:</strong> {{ current_user.email }}</p>
+        <p><strong>Full Name:</strong> {{ current_user.full_name }}</p>
+        <p><strong>Member Since:</strong> {{ current_user.created_at.strftime('%Y-%m-%d') }}</p>
+    </div>
+    
+    <div class="profile-sections">
+        <section class="orders-section">
+            <h3>My Orders</h3>
+            {% if orders %}
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order #</th>
+                            <th>Date</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                            <tr>
+                                <td>{{ order.order_number }}</td>
+                                <td>{{ order.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ order.order_items.count() }} items</td>
+                                <td>${{ "%.2f"|format(order.total_amount) }}</td>
+                                <td><span class="status-{{ order.status }}">{{ order.status }}</span></td>
+                                <td>
+                                    <a href="{{ url_for('main.order_confirmation', order_id=order.id) }}" class="btn btn-sm">View</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>You haven't placed any orders yet.</p>
+            {% endif %}
+        </section>
+        
+        <section class="reviews-section">
+            <h3>My Reviews</h3>
+            {% if reviews %}
+                <div class="reviews-list">
+                    {% for review in reviews %}
+                        <div class="review-item">
+                            <h4>{{ review.book.title }}</h4>
+                            <div class="rating">{{ '⭐' * review.rating }}</div>
+                            <p>{{ review.comment }}</p>
+                            <small>Posted on {{ review.created_at.strftime('%Y-%m-%d') }}</small>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>You haven't written any reviews yet.</p>
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endblock %}
