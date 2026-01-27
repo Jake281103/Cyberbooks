@@ -4,7 +4,7 @@
 <div class="container">
     <h2>{{ action }} Book</h2>
     
-    <form method="POST" class="admin-form">
+    <form method="POST" class="admin-form" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         
         <div class="form-group">
@@ -78,11 +78,11 @@
         </div>
         
         <div class="form-group">
-            {{ form.file_path.label }}
-            {{ form.file_path(class="form-control") }}
-            {% if form.file_path.errors %}
+            {{ form.book_file.label }}
+            {{ form.book_file(class="form-control") }}
+            {% if form.book_file.errors %}
                 <ul class="errors">
-                    {% for error in form.file_path.errors %}<li>{{ error }}</li>{% endfor %}
+                    {% for error in form.book_file.errors %}<li>{{ error }}</li>{% endfor %}
                 </ul>
             {% endif %}
         </div>
@@ -93,16 +93,6 @@
             {% if form.cover_image.errors %}
                 <ul class="errors">
                     {% for error in form.cover_image.errors %}<li>{{ error }}</li>{% endfor %}
-                </ul>
-            {% endif %}
-        </div>
-        
-        <div class="form-group">
-            {{ form.stock.label }}
-            {{ form.stock(class="form-control") }}
-            {% if form.stock.errors %}
-                <ul class="errors">
-                    {% for error in form.stock.errors %}<li>{{ error }}</li>{% endfor %}
                 </ul>
             {% endif %}
         </div>

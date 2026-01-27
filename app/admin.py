@@ -1,12 +1,39 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, abort, send_file
+from flask import Blueprint, render_template, redirect, url_for, flash, request, abort, send_file, current_app
 from flask_login import login_required, current_user
 from functools import wraps
 from app import db
 from app.models import Book, Category, Order, OrderItem, User, Review
 from app.forms import BookForm, CategoryForm
+from werkzeug.utils import secure_filename
 import os
+import uuid
 
 admin_bp = Blueprint('admin', __name__)
+
+
+def allowed_file(filename, allowed_extensions):
+    """Check if file extension is allowed"""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
+
+
+def save_file(file, folder):
+    """Save uploaded file and return the relative path"""
+    if file and file.filename:
+        # Generate unique filename to prevent conflicts
+        original_filename = secure_filename(file.filename)
+        filename = f"{uuid.uuid4().hex}_{original_filename}"
+        
+        # Create folder if it doesn't exist
+        upload_path = os.path.join(current_app.root_path, 'static', folder)
+        os.makedirs(upload_path, exist_ok=True)
+        
+        # Save file
+        file_path = os.path.join(upload_path, filename)
+        file.save(file_path)
+        
+        # Return relative path for database storage
+        return f"{folder}/{filename}"
+    return None
 
 
 def admin_required(f):
@@ -62,6 +89,21 @@ def add_book():
     form.category_id.choices = [(c.id, c.name) for c in Category.query.order_by(Category.name).all()]
     
     if form.validate_on_submit():
+        # Validate that files are provided for new book
+        if not form.cover_image.data or not form.cover_image.data.filename:
+            flash('Cover image is required when adding a new book.', 'danger')
+            return render_template('admin/book_form.html', form=form, title='Add Book', action='Add')
+        
+        if not form.book_file.data or not form.book_file.data.filename:
+            flash('Book file is required when adding a new book.', 'danger')
+            return render_template('admin/book_form.html', form=form, title='Add Book', action='Add')
+        
+        # Save cover image
+        cover_image_path = save_file(form.cover_image.data, 'img/books')
+        
+        # Save book file
+        book_file_path = save_file(form.book_file.data, 'books')
+        
         book = Book(
             title=form.title.data,
             author=form.author.data,
@@ -70,9 +112,8 @@ def add_book():
             price=form.price.data,
             file_format=form.file_format.data,
             category_id=form.category_id.data,
-            file_path=form.file_path.data,
-            cover_image=form.cover_image.data,
-            stock=form.stock.data
+            file_path=book_file_path,
+            cover_image=cover_image_path
         )
         
         db.session.add(book)
@@ -101,9 +142,26 @@ def edit_book(book_id):
         book.price = form.price.data
         book.file_format = form.file_format.data
         book.category_id = form.category_id.data
-        book.file_path = form.file_path.data
-        book.cover_image = form.cover_image.data
-        book.stock = form.stock.data
+        
+        # Update cover image if new file is uploaded
+        if form.cover_image.data and hasattr(form.cover_image.data, 'filename') and form.cover_image.data.filename:
+            # Delete old file if it exists
+            if book.cover_image:
+                old_file = os.path.join(current_app.root_path, 'static', book.cover_image)
+                if os.path.exists(old_file):
+                    os.remove(old_file)
+            
+            book.cover_image = save_file(form.cover_image.data, 'img/books')
+        
+        # Update book file if new file is uploaded
+        if form.book_file.data and hasattr(form.book_file.data, 'filename') and form.book_file.data.filename:
+            # Delete old file if it exists
+            if book.file_path:
+                old_file = os.path.join(current_app.root_path, 'static', book.file_path)
+                if os.path.exists(old_file):
+                    os.remove(old_file)
+            
+            book.file_path = save_file(form.book_file.data, 'books')
         
         db.session.commit()
         
@@ -120,6 +178,17 @@ def delete_book(book_id):
     """Delete a book"""
     book = Book.query.get_or_404(book_id)
     title = book.title
+    
+    # Delete associated files
+    if book.cover_image:
+        cover_file = os.path.join(current_app.root_path, 'static', book.cover_image)
+        if os.path.exists(cover_file):
+            os.remove(cover_file)
+    
+    if book.file_path:
+        book_file = os.path.join(current_app.root_path, 'static', book.file_path)
+        if os.path.exists(book_file):
+            os.remove(book_file)
     
     db.session.delete(book)
     db.session.commit()

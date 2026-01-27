@@ -45,7 +45,7 @@
                         <div class="book-card">
                             <div class="book-cover cover-with-badge">
                                 {% if book.cover_image %}
-                                    <img src="{{ book.cover_image }}" alt="{{ book.title }}">
+                                    <img src="{{ url_for('static', filename=book.cover_image) }}" alt="{{ book.title }}">
                                 {% else %}
                                     <div class="placeholder-cover">📚</div>
                                 {% endif %}

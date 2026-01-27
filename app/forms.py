@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, TextAreaField, DecimalField, SelectField, IntegerField, BooleanField
+from wtforms import StringField, PasswordField, TextAreaField, DecimalField, SelectField, IntegerField, BooleanField, FileField
 from wtforms.validators import DataRequired, EqualTo, Length, ValidationError, NumberRange, Optional, Regexp
 import re
 from app.models import User
@@ -84,6 +84,8 @@ class BookForm(FlaskForm):
         Optional(),
         Length(min=10, max=13, message='ISBN must be 10-13 characters')
     ])
+    cover_image = FileField('Cover Image')
+    book_file = FileField('Book File (PDF/ePub)')
     description = TextAreaField('Description', validators=[DataRequired()])
     price = DecimalField('Price ($)', validators=[
         DataRequired(),
@@ -95,11 +97,6 @@ class BookForm(FlaskForm):
     ], validators=[DataRequired()])
     category_id = SelectField('Category', coerce=int, validators=[DataRequired()])
     file_path = StringField('File Path', validators=[Optional(), Length(max=255)])
-    cover_image = StringField('Cover Image URL', validators=[Optional(), Length(max=255)])
-    stock = IntegerField('Stock', validators=[
-        Optional(),
-        NumberRange(min=0, message='Stock cannot be negative')
-    ], default=999)
 
 
 class ReviewForm(FlaskForm):

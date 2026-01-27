@@ -28,7 +28,7 @@ class Config:
     
     # File Upload
     UPLOAD_FOLDER = os.path.join(basedir, 'uploads')
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
+    MAX_CONTENT_LENGTH = 500 * 1024 * 1024  # 500MB max file size
     ALLOWED_EXTENSIONS = {'pdf', 'epub'}
     
     # Pagination

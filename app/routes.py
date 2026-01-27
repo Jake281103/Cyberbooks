@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from sqlalchemy import or_
 from app import db
 from app.models import Book, Category, CartItem, Order, OrderItem, Review
-from app.forms import ReviewForm, CheckoutForm, SearchForm
+from app.forms import ReviewForm, CheckoutForm, SearchForm, BookForm
 from datetime import datetime
 import os
 
@@ -323,3 +323,39 @@ def api_books():
 def hello():
     """Test API endpoint"""
     return jsonify({'message': 'Hello from CyberBooks API!'})
+
+
+@main_bp.route('/admin/book/add', methods=['GET', 'POST'])
+@login_required
+def add_book():
+    """Add a new book to the library"""
+    form = BookForm()
+    if form.validate_on_submit():
+        # Save book cover image
+        cover_image = form.cover_image.data
+        cover_image_filename = secure_filename(cover_image.filename)
+        cover_image_path = os.path.join('app/static/img/books/', cover_image_filename)
+        cover_image.save(cover_image_path)
+
+        # Save book file
+        book_file = form.book_file.data
+        book_file_filename = secure_filename(book_file.filename)
+        book_file_path = os.path.join('app/static/books/', book_file_filename)
+        book_file.save(book_file_path)
+
+        # Create new book entry
+        new_book = Book(
+            title=form.title.data,
+            author=form.author.data,
+            description=form.description.data,
+            price=form.price.data,
+            cover_image=cover_image_filename,
+            book_file=book_file_filename,
+            category_id=form.category.data,
+            created_at=datetime.utcnow()
+        )
+        db.session.add(new_book)
+        db.session.commit()
+        flash('Book added successfully!', 'success')
+        return redirect(url_for('main.shop'))
+    return render_template('admin/add_book.html', form=form, title='Add Book')

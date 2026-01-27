@@ -19,7 +19,7 @@
         </div>
         <div class="hero-visual animate-fade-in reveal-visible delay-1">
             {% if hero_book and hero_book.cover_image %}
-                <img src="{{ hero_book.cover_image }}" alt="{{ hero_book.title }} cover" class="hero-cover">
+                <img src="{{ url_for('static', filename=hero_book.cover_image) }}" alt="{{ hero_book.title }} cover" class="hero-cover">
             {% else %}
                 <div class="hero-cover placeholder-cover-large">📚</div>
             {% endif %}
@@ -48,7 +48,7 @@
                 <div class="book-card animate-fade-in delay-{{ loop.index0 % 4 + 1 }}">
                     <div class="book-cover cover-with-badge">
                         {% if book.cover_image %}
-                            <img src="{{ book.cover_image }}" alt="{{ book.title }}">
+                            <img src="{{ url_for('static', filename=book.cover_image) }}" alt="{{ book.title }}">
                         {% else %}
                             <div class="placeholder-cover">📚</div>
                         {% endif %}

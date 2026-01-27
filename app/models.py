@@ -60,7 +60,6 @@ class Book(db.Model):
     file_path = db.Column(db.String(255))  # Path to the actual file
     cover_image = db.Column(db.String(255))
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
-    stock = db.Column(db.Integer, default=999)  # Digital products have unlimited stock
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
