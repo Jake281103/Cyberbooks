@@ -48,9 +48,9 @@
     
     <!-- Reviews Section -->
     <div class="reviews-section">
-        <h3>Customer Reviews</h3>
-        {% if reviews %}
-            {% for review in reviews %}
+        <h3 style="margin-bottom: 15px;">Customer Reviews</h3>
+        {% if reviews.items %}
+            {% for review in reviews.items %}
                 <div class="review">
                     <div class="review-header">
                         <strong>{{ review.user.username }}</strong>
@@ -60,6 +60,29 @@
                     <p>{{ review.comment }}</p>
                 </div>
             {% endfor %}
+            
+            <!-- Pagination -->
+            {% if reviews.pages > 1 %}
+                <div class="pagination">
+                    {% if reviews.has_prev %}
+                        <a href="{{ url_for('main.book_detail', book_id=book.id, page=reviews.prev_num) }}" class="pagination-link">← Previous</a>
+                    {% endif %}
+                    
+                    {% for page_num in reviews.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num == reviews.page %}
+                                <span class="pagination-link active">{{ page_num }}</span>
+                            {% else %}
+                                <a href="{{ url_for('main.book_detail', book_id=book.id, page=page_num) }}" class="pagination-link">{{ page_num }}</a>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if reviews.has_next %}
+                        <a href="{{ url_for('main.book_detail', book_id=book.id, page=reviews.next_num) }}" class="pagination-link">Next →</a>
+                    {% endif %}
+                </div>
+            {% endif %}
         {% else %}
             <p>No reviews yet. Be the first to review this book!</p>
         {% endif %}

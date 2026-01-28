@@ -78,13 +78,13 @@
                 {% if books.pages > 1 %}
                     <div class="pagination">
                         {% if books.has_prev %}
-                            <a href="{{ url_for('main.shop', page=books.prev_num, **request.args) }}" class="btn">Previous</a>
+                            <a href="{{ url_for('main.shop', page=books.prev_num, query=request.args.get('query', ''), category=request.args.get('category', ''), min_price=request.args.get('min_price', ''), max_price=request.args.get('max_price', ''), sort_by=request.args.get('sort_by', '')) }}" class="btn">Previous</a>
                         {% endif %}
                         
                         <span>Page {{ books.page }} of {{ books.pages }}</span>
                         
                         {% if books.has_next %}
-                            <a href="{{ url_for('main.shop', page=books.next_num, **request.args) }}" class="btn">Next</a>
+                            <a href="{{ url_for('main.shop', page=books.next_num, query=request.args.get('query', ''), category=request.args.get('category', ''), min_price=request.args.get('min_price', ''), max_price=request.args.get('max_price', ''), sort_by=request.args.get('sort_by', '')) }}" class="btn">Next</a>
                         {% endif %}
                     </div>
                 {% endif %}

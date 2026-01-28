@@ -52,6 +52,9 @@ def admin_required(f):
 @admin_required
 def dashboard():
     """Admin dashboard with statistics"""
+    from sqlalchemy import func, extract
+    from datetime import timedelta
+    
     total_books = Book.query.count()
     total_users = User.query.count()
     total_orders = Order.query.count()
@@ -59,12 +62,40 @@ def dashboard():
     
     recent_orders = Order.query.order_by(Order.created_at.desc()).limit(10).all()
     
+    # Books by category
+    books_by_category = db.session.query(
+        Category.name, 
+        func.count(Book.id).label('count')
+    ).join(Book, Book.category_id == Category.id).group_by(Category.name).all()
+    
+    # Revenue by month (last 6 months)
+    revenue_by_month = db.session.query(
+        func.date_format(Order.created_at, '%Y-%m').label('month'),
+        func.sum(Order.total_amount).label('revenue')
+    ).filter(Order.status == 'completed').group_by('month').order_by('month').limit(6).all()
+    
+    # Top selling books
+    top_books = db.session.query(
+        Book.title,
+        func.count(OrderItem.id).label('sales')
+    ).join(OrderItem, OrderItem.book_id == Book.id).group_by(Book.id, Book.title).order_by(func.count(OrderItem.id).desc()).limit(5).all()
+    
+    # User registrations by month (last 6 months)
+    user_registrations = db.session.query(
+        func.date_format(User.created_at, '%Y-%m').label('month'),
+        func.count(User.id).label('count')
+    ).group_by('month').order_by('month').limit(6).all()
+    
     return render_template('admin/dashboard.html',
                          total_books=total_books,
                          total_users=total_users,
                          total_orders=total_orders,
                          total_revenue=total_revenue,
                          recent_orders=recent_orders,
+                         books_by_category=books_by_category,
+                         revenue_by_month=revenue_by_month,
+                         top_books=top_books,
+                         user_registrations=user_registrations,
                          title='Admin Dashboard')
 
 

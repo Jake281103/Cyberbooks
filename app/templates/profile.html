@@ -14,7 +14,7 @@
     <div class="profile-sections">
         <section class="orders-section">
             <h3>My Orders</h3>
-            {% if orders %}
+            {% if orders.items %}
                 <table class="orders-table">
                     <thead>
                         <tr>
@@ -27,7 +27,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for order in orders %}
+                        {% for order in orders.items %}
                             <tr>
                                 <td>{{ order.order_number }}</td>
                                 <td>{{ order.created_at.strftime('%Y-%m-%d') }}</td>
@@ -41,16 +41,39 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                
+                <!-- Orders Pagination -->
+                {% if orders.pages > 1 %}
+                    <div class="pagination">
+                        {% if orders.has_prev %}
+                            <a href="{{ url_for('main.profile', orders_page=orders.prev_num) }}" class="pagination-link">← Previous</a>
+                        {% endif %}
+                        
+                        {% for page_num in orders.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num == orders.page %}
+                                    <span class="pagination-link active">{{ page_num }}</span>
+                                {% else %}
+                                    <a href="{{ url_for('main.profile', orders_page=page_num) }}" class="pagination-link">{{ page_num }}</a>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if orders.has_next %}
+                            <a href="{{ url_for('main.profile', orders_page=orders.next_num) }}" class="pagination-link">Next →</a>
+                        {% endif %}
+                    </div>
+                {% endif %}
             {% else %}
                 <p>You haven't placed any orders yet.</p>
             {% endif %}
         </section>
         
         <section class="reviews-section">
-            <h3>My Reviews</h3>
-            {% if reviews %}
+            <h3 style="margin-bottom: 15px;">My Reviews</h3>
+            {% if reviews.items %}
                 <div class="reviews-list">
-                    {% for review in reviews %}
+                    {% for review in reviews.items %}
                         <div class="review-item">
                             <h4>{{ review.book.title }}</h4>
                             <div class="rating">{{ '⭐' * review.rating }}</div>
@@ -59,6 +82,29 @@
                         </div>
                     {% endfor %}
                 </div>
+                
+                <!-- Reviews Pagination -->
+                {% if reviews.pages > 1 %}
+                    <div class="pagination">
+                        {% if reviews.has_prev %}
+                            <a href="{{ url_for('main.profile', reviews_page=reviews.prev_num) }}" class="pagination-link">← Previous</a>
+                        {% endif %}
+                        
+                        {% for page_num in reviews.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num == reviews.page %}
+                                    <span class="pagination-link active">{{ page_num }}</span>
+                                {% else %}
+                                    <a href="{{ url_for('main.profile', reviews_page=page_num) }}" class="pagination-link">{{ page_num }}</a>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if reviews.has_next %}
+                            <a href="{{ url_for('main.profile', reviews_page=reviews.next_num) }}" class="pagination-link">Next →</a>
+                        {% endif %}
+                    </div>
+                {% endif %}
             {% else %}
                 <p>You haven't written any reviews yet.</p>
             {% endif %}

@@ -30,6 +30,29 @@
         <a href="{{ url_for('admin.orders') }}" class="btn btn-primary">View Orders</a>
     </div>
     
+    <!-- Charts Section -->
+    <div class="charts-grid">
+        <div class="chart-container">
+            <h3>Books by Category</h3>
+            <canvas id="categoryChart"></canvas>
+        </div>
+        
+        <div class="chart-container">
+            <h3>Revenue Trend (Last 6 Months)</h3>
+            <canvas id="revenueChart"></canvas>
+        </div>
+        
+        <div class="chart-container">
+            <h3>Top Selling Books</h3>
+            <canvas id="topBooksChart"></canvas>
+        </div>
+        
+        <div class="chart-container">
+            <h3>User Registrations (Last 6 Months)</h3>
+            <canvas id="userRegistrationsChart"></canvas>
+        </div>
+    </div>
+    
     <section class="recent-orders">
         <h3>Recent Orders</h3>
         <table class="admin-table">
@@ -56,4 +79,149 @@
         </table>
     </section>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// Books by Category Chart
+const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+const categoryChart = new Chart(categoryCtx, {
+    type: 'doughnut',
+    data: {
+        labels: [{% for cat, count in books_by_category %}'{{ cat }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+            data: [{% for cat, count in books_by_category %}{{ count }}{% if not loop.last %}, {% endif %}{% endfor %}],
+            backgroundColor: [
+                'rgba(52, 152, 219, 0.8)',
+                'rgba(46, 204, 113, 0.8)',
+                'rgba(155, 89, 182, 0.8)',
+                'rgba(241, 196, 15, 0.8)',
+                'rgba(231, 76, 60, 0.8)',
+                'rgba(26, 188, 156, 0.8)'
+            ],
+            borderColor: [
+                'rgba(52, 152, 219, 1)',
+                'rgba(46, 204, 113, 1)',
+                'rgba(155, 89, 182, 1)',
+                'rgba(241, 196, 15, 1)',
+                'rgba(231, 76, 60, 1)',
+                'rgba(26, 188, 156, 1)'
+            ],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Revenue Trend Chart
+const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+const revenueChart = new Chart(revenueCtx, {
+    type: 'line',
+    data: {
+        labels: [{% for month, revenue in revenue_by_month %}'{{ month }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Revenue ($)',
+            data: [{% for month, revenue in revenue_by_month %}{{ revenue }}{% if not loop.last %}, {% endif %}{% endfor %}],
+            backgroundColor: 'rgba(52, 152, 219, 0.2)',
+            borderColor: 'rgba(52, 152, 219, 1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'bottom'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '$' + value.toFixed(2);
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Top Selling Books Chart
+const topBooksCtx = document.getElementById('topBooksChart').getContext('2d');
+const topBooksChart = new Chart(topBooksCtx, {
+    type: 'bar',
+    data: {
+        labels: [{% for title, sales in top_books %}'{{ title[:30] }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Sales Count',
+            data: [{% for title, sales in top_books %}{{ sales }}{% if not loop.last %}, {% endif %}{% endfor %}],
+            backgroundColor: 'rgba(46, 204, 113, 0.7)',
+            borderColor: 'rgba(46, 204, 113, 1)',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+
+// User Registrations Chart
+const userRegCtx = document.getElementById('userRegistrationsChart').getContext('2d');
+const userRegChart = new Chart(userRegCtx, {
+    type: 'bar',
+    data: {
+        labels: [{% for month, count in user_registrations %}'{{ month }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+            label: 'New Users',
+            data: [{% for month, count in user_registrations %}{{ count }}{% if not loop.last %}, {% endif %}{% endfor %}],
+            backgroundColor: 'rgba(155, 89, 182, 0.7)',
+            borderColor: 'rgba(155, 89, 182, 1)',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+</script>
 {% endblock %}

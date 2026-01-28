@@ -80,7 +80,12 @@ def shop():
 def book_detail(book_id):
     """Book detail page"""
     book = Book.query.get_or_404(book_id)
-    reviews = Review.query.filter_by(book_id=book_id).order_by(Review.created_at.desc()).all()
+    
+    # Paginate reviews
+    page = request.args.get('page', 1, type=int)
+    reviews = Review.query.filter_by(book_id=book_id).order_by(Review.created_at.desc()).paginate(
+        page=page, per_page=10, error_out=False
+    )
     
     # Check if user has purchased this book
     has_purchased = False
@@ -280,8 +285,17 @@ def order_confirmation(order_id):
 @login_required
 def profile():
     """User profile page"""
-    orders = Order.query.filter_by(user_id=current_user.id).order_by(Order.created_at.desc()).all()
-    reviews = Review.query.filter_by(user_id=current_user.id).order_by(Review.created_at.desc()).all()
+    # Paginate orders
+    orders_page = request.args.get('orders_page', 1, type=int)
+    orders = Order.query.filter_by(user_id=current_user.id).order_by(Order.created_at.desc()).paginate(
+        page=orders_page, per_page=10, error_out=False
+    )
+    
+    # Paginate reviews
+    reviews_page = request.args.get('reviews_page', 1, type=int)
+    reviews = Review.query.filter_by(user_id=current_user.id).order_by(Review.created_at.desc()).paginate(
+        page=reviews_page, per_page=10, error_out=False
+    )
     
     return render_template('profile.html', 
                          orders=orders, 
