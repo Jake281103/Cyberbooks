@@ -29,14 +29,23 @@ instance/
 *.db
 migrations/
 
-# Uploads
+# Uploads & Book Files
 uploads/
-*.pdf
-*.epub
+app/static/books/*.pdf
+app/static/books/*.epub
+!app/static/books/.gitkeep
 
-# Environment
+# Environment Variables
 .env
 .venv
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+.hypothesis/
+.tox/
 
 # IDE
 .vscode/
@@ -48,6 +57,19 @@ uploads/
 # OS
 .DS_Store
 Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Stripe
+stripe-cli.log
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~.nib
 
 # Logs
 *.log
