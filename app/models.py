@@ -150,7 +150,6 @@ class OrderItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False)
     book_id = db.Column(db.Integer, db.ForeignKey('books.id'), nullable=False)
-    quantity = db.Column(db.Integer, default=1)
     price = db.Column(db.Numeric(10, 2), nullable=False)  # Price at time of purchase
     
     def __repr__(self):
@@ -163,7 +162,6 @@ class CartItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     book_id = db.Column(db.Integer, db.ForeignKey('books.id'), nullable=False)
-    quantity = db.Column(db.Integer, default=1)
     added_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Ensure one cart item per user per book
@@ -172,7 +170,7 @@ class CartItem(db.Model):
     @property
     def subtotal(self):
         """Calculate subtotal for this cart item"""
-        return self.quantity * self.book.price
+        return self.book.price
     
     def __repr__(self):
         return f'<CartItem {self.id}>'

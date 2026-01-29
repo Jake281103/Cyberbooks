@@ -25,6 +25,9 @@ class Config:
     # CSRF Protection
     WTF_CSRF_ENABLED = True
     WTF_CSRF_TIME_LIMIT = None  # No time limit for CSRF tokens
+    WTF_CSRF_CHECK_DEFAULT = True
+    WTF_CSRF_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE']
+    WTF_CSRF_HEADERS = ['X-CSRFToken', 'X-CSRF-Token']
     
     # File Upload
     UPLOAD_FOLDER = os.path.join(basedir, 'uploads')
@@ -33,6 +36,11 @@ class Config:
     
     # Pagination
     ITEMS_PER_PAGE = 12
+    
+    # Stripe Payment
+    STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY')
+    STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
+    STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
 
 
 class DevelopmentConfig(Config):

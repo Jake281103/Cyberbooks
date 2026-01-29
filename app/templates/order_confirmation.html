@@ -17,9 +17,7 @@
                 <thead>
                     <tr>
                         <th>Book</th>
-                        <th>Quantity</th>
                         <th>Price</th>
-                        <th>Subtotal</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -27,19 +25,25 @@
                     {% for item in order.order_items %}
                         <tr>
                             <td>{{ item.book.title }}</td>
-                            <td>{{ item.quantity }}</td>
                             <td>${{ "%.2f"|format(item.price) }}</td>
-                            <td>${{ "%.2f"|format(item.price * item.quantity) }}</td>
                             <td>
-                                <a href="{{ url_for('main.download_book', book_id=item.book_id) }}" class="btn btn-sm btn-success">Download</a>
-                                <a href="{{ url_for('main.add_review', book_id=item.book_id) }}" class="btn btn-sm btn-primary">Review</a>
+                                {% if order.status == 'completed' %}
+                                    <a href="{{ url_for('main.download_book', book_id=item.book_id) }}" class="btn btn-sm btn-success">Download</a>
+                                    <a href="{{ url_for('main.add_review', book_id=item.book_id) }}" class="btn btn-sm btn-primary">Review</a>
+                                {% elif order.status == 'pending' %}
+                                    <span class="text-warning">Payment pending...</span>
+                                {% elif order.status == 'failed' %}
+                                    <span class="text-danger">Payment failed</span>
+                                {% else %}
+                                    <span class="text-secondary">N/A</span>
+                                {% endif %}
                             </td>
                         </tr>
                     {% endfor %}
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="3"><strong>Total:</strong></td>
+                        <td><strong>Total:</strong></td>
                         <td colspan="2"><strong>${{ "%.2f"|format(order.total_amount) }}</strong></td>
                     </tr>
                 </tfoot>

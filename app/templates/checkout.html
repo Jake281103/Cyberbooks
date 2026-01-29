@@ -10,20 +10,20 @@
             <table class="summary-table">
                 {% for item in cart_items %}
                     <tr>
-                        <td>{{ item.book.title }} (x{{ item.quantity }})</td>
+                        <td>{{ item.book.title }}</td>
                         <td>${{ "%.2f"|format(item.subtotal) }}</td>
                     </tr>
                 {% endfor %}
                 <tr class="total-row">
                     <td><strong>Total:</strong></td>
-                    <td><strong>${{ "%.2f"|format(total) }}</strong></td>
+                    <td><strong id="total-amount">${{ "%.2f"|format(total) }}</strong></td>
                 </tr>
             </table>
         </div>
         
         <div class="checkout-form">
             <h3>Payment Information</h3>
-            <form method="POST">
+            <form id="payment-form" method="POST">
                 {{ form.hidden_tag() }}
                 
                 <div class="form-group">
@@ -51,14 +51,153 @@
                 </div>
                 
                 <div class="form-group">
-                    {{ form.payment_method.label }}
-                    {{ form.payment_method(class="form-control") }}
-                    <small>Note: This is a simulated payment for demonstration purposes.</small>
+                    <label for="card-element">Credit Card</label>
+                    <div id="card-element" class="stripe-element"></div>
+                    <div id="card-errors" role="alert" class="error-message"></div>
                 </div>
                 
-                <button type="submit" class="btn btn-primary btn-block">Complete Order</button>
+                <button type="submit" id="submit-button" class="btn btn-primary btn-block">Complete Order (${{'%.2f'|format(total)}})</button>
+                <div id="payment-status" class="payment-status"></div>
             </form>
         </div>
     </div>
 </div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    const stripe = Stripe('{{ publishable_key }}');
+    const elements = stripe.elements();
+    const cardElement = elements.create('card', {
+        hidePostalCode: true,
+        disableLink: true
+    });
+    cardElement.mount('#card-element');
+
+    const form = document.getElementById('payment-form');
+    const submitButton = document.getElementById('submit-button');
+    const cardErrors = document.getElementById('card-errors');
+    const paymentStatus = document.getElementById('payment-status');
+
+    // Handle real-time validation errors
+    cardElement.addEventListener('change', (event) => {
+        if (event.error) {
+            cardErrors.textContent = event.error.message;
+        } else {
+            cardErrors.textContent = '';
+        }
+    });
+
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        
+        // Disable submit button
+        submitButton.disabled = true;
+        paymentStatus.textContent = 'Processing payment...';
+        paymentStatus.style.color = 'blue';
+
+        try {
+            // Get CSRF token
+            const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+            
+            // Create payment intent
+            const response = await fetch('{{ url_for("main.checkout") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    full_name: document.querySelector('input[name="full_name"]').value,
+                    email: document.querySelector('input[name="email"]').value
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.error) {
+                throw new Error(data.error);
+            }
+
+            // Confirm card payment with Stripe
+            const result = await stripe.confirmCardPayment(data.clientSecret, {
+                payment_method: {
+                    card: cardElement,
+                    billing_details: {
+                        name: document.querySelector('input[name="full_name"]').value,
+                        email: document.querySelector('input[name="email"]').value
+                    }
+                }
+            });
+
+            if (result.error) {
+                // Payment failed
+                cardErrors.textContent = result.error.message;
+                paymentStatus.textContent = 'Payment failed';
+                paymentStatus.style.color = 'red';
+                submitButton.disabled = false;
+            } else if (result.paymentIntent.status === 'succeeded') {
+                // Payment successful
+                paymentStatus.textContent = 'Payment successful! Redirecting...';
+                paymentStatus.style.color = 'green';
+                
+                // Confirm payment on backend
+                const confirmResponse = await fetch('{{ url_for("main.payment_confirmation") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({
+                        paymentIntentId: result.paymentIntent.id
+                    })
+                });
+
+                const confirmData = await confirmResponse.json();
+                if (confirmData.status === 'success') {
+                    window.location.href = '/order/' + confirmData.orderId;
+                } else {
+                    throw new Error(confirmData.message);
+                }
+            }
+        } catch (error) {
+            cardErrors.textContent = error.message;
+            paymentStatus.textContent = 'An error occurred';
+            paymentStatus.style.color = 'red';
+            submitButton.disabled = false;
+        }
+    });
+</script>
+
+<style>
+    .stripe-element {
+        border: 1px solid #ccc;
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        background-color: #fff;
+    }
+
+    .stripe-element.StripeElement--focus {
+        box-shadow: 0 0 6px rgba(132, 55, 206, 0.1);
+        border-color: #8437ce;
+    }
+
+    #card-errors {
+        color: #dc3545;
+        margin-top: 5px;
+        font-size: 14px;
+    }
+
+    .error-message {
+        color: #dc3545;
+        margin-top: 5px;
+        font-size: 14px;
+    }
+
+    .payment-status {
+        margin-top: 15px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+</style>
 {% endblock %}
