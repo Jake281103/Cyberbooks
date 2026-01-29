@@ -28,7 +28,7 @@ def create_app(config_name='default'):
     login_manager.login_message_category = 'info'
     
     # Security headers (disabled in development for easier testing)
-    if not app.config['DEBUG']:
+    if not app.config['DEBUG'] and not app.config.get('TESTING', False):
         Talisman(app, force_https=True)
     
     # Import models
@@ -37,7 +37,7 @@ def create_app(config_name='default'):
     # User loader for Flask-Login
     @login_manager.user_loader
     def load_user(user_id):
-        return models.User.query.get(int(user_id))
+        return db.session.get(models.User, int(user_id))
     
     # Register blueprints
     from app.routes import main_bp
@@ -47,5 +47,20 @@ def create_app(config_name='default'):
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(admin_bp, url_prefix='/admin')
+    
+    # Register error handlers
+    from flask import render_template
+    
+    @app.errorhandler(403)
+    def forbidden(e):
+        return render_template('errors/403.html'), 403
+    
+    @app.errorhandler(404)
+    def page_not_found(e):
+        return render_template('errors/404.html'), 404
+    
+    @app.errorhandler(500)
+    def internal_server_error(e):
+        return render_template('errors/500.html'), 500
 
     return app

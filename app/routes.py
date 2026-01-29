@@ -452,7 +452,7 @@ def stripe_webhook():
         order_id = payment_intent['metadata'].get('order_id')
         
         if order_id:
-            order = Order.query.get(int(order_id))
+            order = db.session.get(Order, int(order_id))
             if order:
                 order.status = 'completed'
                 db.session.commit()
@@ -464,7 +464,7 @@ def stripe_webhook():
         order_id = payment_intent['metadata'].get('order_id')
         
         if order_id:
-            order = Order.query.get(int(order_id))
+            order = db.session.get(Order, int(order_id))
             if order:
                 order.status = 'failed'
                 db.session.commit()

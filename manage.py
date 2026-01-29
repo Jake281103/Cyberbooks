@@ -18,7 +18,11 @@ def print_menu():
     print("6. Create Database Migration")
     print("7. Apply Database Migration")
     print("8. View Database Info")
-    print("9. Exit")
+    print("9. Run Tests")
+    print("10. Run Security Tests")
+    print("11. Run All Tests with Coverage")
+    print("12. Clean Test Cache")
+    print("13. Exit")
     print("\n" + "=" * 60)
 
 def setup_env():
@@ -98,13 +102,51 @@ def db_info():
     
     input("\nPress Enter to continue...")
 
+def run_tests():
+    """Run functional tests"""
+    print("\n🧪 Running functional tests...")
+    os.system("python -m pytest tests/test_app.py -v")
+    input("\nPress Enter to continue...")
+
+def run_security_tests():
+    """Run security tests"""
+    print("\n🔒 Running security tests...")
+    os.system("python -m pytest tests/test_security.py -v")
+    input("\nPress Enter to continue...")
+
+def run_all_tests():
+    """Run all tests with coverage"""
+    print("\n🧪 Running all tests with coverage...")
+    os.system("python -m pytest tests/ -v --cov=app --cov-report=html --cov-report=term")
+    print("\n📊 Coverage report generated in htmlcov/index.html")
+    input("\nPress Enter to continue...")
+
+def clean_cache():
+    """Clean test cache and pycache"""
+    print("\n🧹 Cleaning test cache...")
+    import shutil
+    
+    dirs_to_clean = ['.pytest_cache', '__pycache__']
+    for root, dirs, files in os.walk('.'):
+        for dir_name in dirs:
+            if dir_name in dirs_to_clean:
+                dir_path = os.path.join(root, dir_name)
+                try:
+                    shutil.rmtree(dir_path)
+                    print(f"✅ Removed {dir_path}")
+                except Exception as e:
+                    print(f"❌ Error removing {dir_path}: {e}")
+    
+    print("\n✅ Cache cleaned!")
+    input("\nPress Enter to continue...")
+
 def main():
     """Main menu loop"""
     while True:
         os.system('cls' if os.name == 'nt' else 'clear')
         print_menu()
         
-        choice = input("\nEnter your choice (1-9): ").strip()
+        choice = input("\nEnter your choice (1-13): ").strip()
         
         if choice == '1':
             setup_env()
@@ -123,6 +165,14 @@ def main():
         elif choice == '8':
             db_info()
         elif choice == '9':
+            run_tests()
+        elif choice == '10':
+            run_security_tests()
+        elif choice == '11':
+            run_all_tests()
+        elif choice == '12':
+            clean_cache()
+        elif choice == '13':
             print("\n👋 Goodbye!")
             sys.exit(0)
         else:

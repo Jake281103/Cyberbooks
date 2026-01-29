@@ -57,8 +57,12 @@ class ProductionConfig(Config):
 
 class TestingConfig(Config):
     TESTING = True
+    DEBUG = True  # Disable Talisman in testing
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     WTF_CSRF_ENABLED = False
+    WTF_CSRF_CHECK_DEFAULT = False
+    SESSION_COOKIE_SECURE = False
+    SESSION_COOKIE_HTTPONLY = False
 
 
 config = {

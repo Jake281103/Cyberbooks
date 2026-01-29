@@ -3,7 +3,7 @@ from flask_login import login_user, logout_user, current_user
 from app import db
 from app.models import User
 from app.forms import RegistrationForm, LoginForm
-from datetime import datetime
+from datetime import datetime, timezone
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -45,7 +45,7 @@ def login():
         
         if user and user.check_password(form.password.data):
             # Update last login time
-            user.last_login = datetime.utcnow()
+            user.last_login = datetime.now(timezone.utc)
             db.session.commit()
             
             login_user(user, remember=form.remember_me.data)

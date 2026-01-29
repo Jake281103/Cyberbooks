@@ -12,12 +12,14 @@ A comprehensive Flask-based e-commerce platform for cybersecurity educational re
    - CSRF protection on all forms
    - Session security with HTTPOnly and Secure cookies
    - Protection against automated attacks
+   - 26 functional tests covering all auth flows
 
 2. **Product Management**
    - Full CRUD operations for books (Admin only)
    - Categories: Network Security, Cryptography, Ethical Hacking, Digital Forensics, etc.
    - Book attributes: title, author, ISBN, price, description, file format (PDF/ePub)
    - Stock management
+   - Book reviews and ratings
 
 3. **Search and Filtering**
    - Keyword search (title and author)
@@ -26,35 +28,55 @@ A comprehensive Flask-based e-commerce platform for cybersecurity educational re
    - Sort by newest, oldest, price, and rating
 
 4. **Shopping Cart and Checkout**
-   - Add/remove items from cart
-   - Update quantities
-   - Simulated secure checkout process
-   - Order confirmation and order history
+   - Add/remove items from cart (no quantity tracking for digital products)
+   - Stripe payment processing in test mode
+   - Order confirmation with payment verification
+   - Order history and status tracking
+   - PaymentIntent workflow with webhooks
 
 5. **Download and Access Control**
    - Purchase verification before download access
    - Only authenticated buyers can download
    - Instant access after purchase
+   - Actual file serving with send_file()
 
 6. **Review and Rating System**
    - 5-star rating system
    - Written reviews with validation
    - Only purchasers can review
    - One review per user per book
+   - XSS protection on review content
 
 7. **Database Management**
    - MySQL with SQLAlchemy ORM
    - Normalized relational structure
    - Foreign key constraints
    - Data integrity and validation
+   - Modern SQLAlchemy 2.0 syntax
 
-8. **Responsive Design** ⭐ NEW
+8. **Responsive Design** ⭐
    - Mobile-first approach with 5 breakpoint system
    - Hamburger navigation menu for mobile devices
    - Touch-optimized UI elements (min 44-48px targets)
    - Adaptive layouts for phones, tablets, and desktops
    - Progressive enhancement for modern browsers
-   - See [RESPONSIVE_DESIGN.md](RESPONSIVE_DESIGN.md) for details
+
+9. **Comprehensive Testing** ⭐ NEW
+   - 26 Functional Tests (Registration, Login, Cart, Reviews, Error Pages)
+   - 17 Security Tests (SQL Injection, XSS, CSRF, Path Traversal, etc.)
+   - 100% test pass rate with 0 warnings
+   - Coverage reports with pytest-cov
+   - See [TESTING_SUMMARY.md](TESTING_SUMMARY.md) for details
+
+10. **Security Testing** ⭐ NEW
+    - SQL Injection prevention tests
+    - XSS (Cross-Site Scripting) prevention tests
+    - CSRF token validation tests
+    - Path traversal attack prevention
+    - Authentication bypass prevention
+    - Password hashing verification
+    - Session fixation protection
+    - Mass assignment protection
 
 ## Project Structure
 
@@ -93,26 +115,37 @@ CyberBooks/
 │       │   └── style.css        # Comprehensive styling
 │       └── js/
 │           └── main.js          # JavaScript functionality
-├── config.py                    # Environment-based configuration
-├── requirements.txt             # Python dependencies
+├── config.py                    # Environment-based configuration with TestingConfig
+├── pytest.ini                   # Pytest configuration with warning filters
+├── requirements.txt             # Python dependencies with versions
+├── manage.py                    # Interactive management menu with testing commands
 ├── run.py                       # Application entry point
 ├── init_db.py                   # Database initialization script
+├── create_admin.py              # Admin user creation script
+├── verify_setup.py              # Setup verification script
+├── tests/
+│   ├── __init__.py
+│   ├── test_app.py              # 26 Functional tests (auth, cart, reviews, errors)
+│   ├── test_security.py         # 17 Security tests (SQL injection, XSS, etc.)
+│   └── README.md                # Testing guide
 ├── .env.example                 # Environment variables template
 ├── .gitignore                   # Git ignore patterns
+├── SETUP_GUIDE.md               # Detailed setup guide
+├── TESTING_SUMMARY.md           # Testing documentation
 └── README.md                    # This file
 ```
 
 ## Technology Stack
 
-- **Backend**: Flask 3.0.3
-- **Database**: MySQL with PyMySQL driver
-- **ORM**: SQLAlchemy 3.1.1
+- **Backend**: Flask 3.0.3, Werkzeug 3.1.5
+- **Database**: MySQL with PyMySQL driver, SQLAlchemy 2.0.45 ORM
 - **Migration**: Flask-Migrate 4.0.7
-- **Authentication**: Flask-Login 0.6.3
-- **Forms**: Flask-WTF 1.2.1, WTForms 3.1.2
-- **Security**: bcrypt 4.1.3, Flask-Talisman 1.1.0
-- **Password Hashing**: bcrypt with salt
-- **Session Management**: Flask sessions with security headers
+- **Authentication**: Flask-Login 0.6.3 with session management
+- **Forms**: Flask-WTF 1.2.1, WTForms 3.1.2 with CSRF protection
+- **Security**: bcrypt 4.1.3 (password hashing), Flask-Talisman 1.1.0 (security headers)
+- **Payment**: Stripe 14.2.0 (test mode)
+- **Testing**: pytest 9.0.2, pytest-flask 1.3.0, pytest-cov 7.0.0, coverage 7.13.2
+- **Utilities**: python-dotenv 1.0.1, email-validator 2.1.0
 
 ## Setup Instructions
 
@@ -263,34 +296,58 @@ The application will be available at `http://localhost:5000`
 
 ## Security Features
 
-1. **Password Security**
-   - Bcrypt hashing with automatic salt generation
-   - Minimum 8-character password requirement
-   - Password confirmation validation
+### Authentication & Password Security
+- Bcrypt hashing with automatic salt generation
+- Minimum 8-character password requirement
+- Password confirmation validation
+- Secure session management with Flask-Login
+- Login required decorators on protected routes
 
-2. **Session Security**
-   - Secure session cookies
-   - HTTPOnly cookies to prevent XSS
-   - SameSite cookies for CSRF protection
-   - 2-hour session timeout
+### CSRF & XSS Protection
+- Flask-WTF CSRF tokens on all forms
+- Automatic token validation
+- Jinja2 auto-escaping prevents XSS attacks
+- Stored XSS tests verify HTML escaping
+- Reflected XSS tests verify input sanitization
 
-3. **CSRF Protection**
-   - Flask-WTF CSRF tokens on all forms
-   - Automatic token validation
+### Session Security
+- Secure session cookies (production)
+- HTTPOnly cookies to prevent XSS token theft
+- SameSite cookies for CSRF protection (production)
+- 2-hour session timeout
+- Session fixation attack prevention
 
-4. **Access Control**
-   - Role-based access (admin/user)
-   - Purchase verification for downloads
-   - Login required decorators
+### SQL Injection Prevention
+- SQLAlchemy ORM parameterized queries
+- Input validation with WTForms
+- 6 SQL injection tests verify protection
+- No direct SQL query execution
 
-5. **SQL Injection Prevention**
-   - SQLAlchemy ORM parameterized queries
-   - Input validation with WTForms
+### Access Control
+- Role-based access (admin/user)
+- Purchase verification for downloads
+- One-time book purchase (no re-buying)
+- One review per user per book enforcement
 
-6. **Headers Security** (Production)
-   - Flask-Talisman for security headers
-   - HTTPS enforcement in production
-   - Content Security Policy
+### Security Headers (Production)
+- Flask-Talisman for security headers
+- HTTPS enforcement (DEBUG=False)
+- Content Security Policy
+- X-Frame-Options to prevent clickjacking
+- X-Content-Type-Options to prevent MIME sniffing
+
+### Path Traversal Protection
+- File download validation
+- No directory traversal allowed
+- Verified with path traversal tests
+
+### Testing & Validation
+- 43 total tests (26 functional + 17 security)
+- SQL injection tests pass ✅
+- XSS prevention tests pass ✅
+- CSRF validation tests pass ✅
+- Authentication bypass tests pass ✅
+- Path traversal tests pass ✅
 
 ## API Endpoints
 
@@ -325,12 +382,49 @@ The application will be available at `http://localhost:5000`
 ### Running Tests
 
 ```bash
-# Set testing environment
-set FLASK_ENV=testing
+# Run functional tests
+python -m pytest tests/test_app.py -v
 
-# Run tests (add test files to tests/ directory)
-python -m pytest
+# Run security tests (SQL Injection, XSS, etc.)
+python -m pytest tests/test_security.py -v
+
+# Run all tests with coverage report
+python -m pytest tests/ -v --cov=app --cov-report=html --cov-report=term
 ```
+
+**Test Coverage:**
+- **26 Functional Tests**: Registration, Login, Cart, Reviews, Error Pages, Shop
+- **17 Security Tests**: SQL Injection, XSS, Path Traversal, Authentication Bypass, etc.
+- All tests pass with 0 warnings ✅
+
+View coverage report:
+```bash
+# After running tests with coverage
+start htmlcov/index.html  # Windows
+open htmlcov/index.html   # Mac
+```
+
+### Using the Management Menu
+
+```bash
+# Interactive management menu
+python manage.py
+```
+
+Menu options:
+1. Setup Environment
+2. Verify Setup
+3. Initialize Database
+4. Create Admin User
+5. Run Development Server
+6. Create Database Migration
+7. Apply Database Migration
+8. View Database Info
+9. Run Functional Tests
+10. Run Security Tests
+11. Run All Tests with Coverage
+12. Clean Test Cache
+13. Exit
 
 ### Database Migrations
 

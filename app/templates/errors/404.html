@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container error-page">
+    <div class="error-content">
+        <h1 class="error-code">404</h1>
+        <h2 class="error-title">Page Not Found</h2>
+        <p class="error-message">
+            Oops! The page you're looking for doesn't exist. 
+            It might have been moved or deleted.
+        </p>
+        <div class="error-actions">
+            <a href="{{ url_for('main.index') }}" class="btn btn-primary">Go to Home</a>
+            <a href="{{ url_for('main.shop') }}" class="btn btn-secondary">Browse Books</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .error-page {
+        min-height: 60vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    .error-content {
+        max-width: 600px;
+    }
+
+    .error-code {
+        font-size: 120px;
+        font-weight: bold;
+        color: #8437ce;
+        margin: 0;
+        line-height: 1;
+    }
+
+    .error-title {
+        font-size: 36px;
+        margin: 20px 0;
+        color: #333;
+    }
+
+    .error-message {
+        font-size: 18px;
+        color: #666;
+        margin: 20px 0 30px;
+        line-height: 1.6;
+    }
+
+    .error-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .error-actions .btn {
+        padding: 12px 30px;
+        font-size: 16px;
+        text-decoration: none;
+    }
+
+    @media (max-width: 480px) {
+        .error-code {
+            font-size: 80px;
+        }
+
+        .error-title {
+            font-size: 28px;
+        }
+
+        .error-message {
+            font-size: 16px;
+        }
+
+        .error-actions {
+            flex-direction: column;
+        }
+
+        .error-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
