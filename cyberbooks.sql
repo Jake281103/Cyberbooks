@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 29, 2026 at 06:43 AM
+-- Generation Time: Jan 29, 2026 at 07:56 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -227,7 +227,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `username`, `email`, `password_hash`, `full_name`, `is_admin`, `created_at`, `last_login`) VALUES
 (1, 'admin', 'admin@cyberbooks.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5LS2LV7W8Oy5C', 'Administrator', 1, '2026-01-20 07:32:11', NULL),
-(2, 'admin123', 'thawmaungoo@gmail.com', '$2b$12$LwEomGi2tcsM42BUeTqFEuPka0q9wsq6RfgUrDYUADfjDy0s6yquW', 'Admin Kyaw Kyaw', 1, '2026-01-20 07:37:16', '2026-01-29 05:10:53'),
+(2, 'admin123', 'adminuser123@gmail.com', '$2b$12$LwEomGi2tcsM42BUeTqFEuPka0q9wsq6RfgUrDYUADfjDy0s6yquW', 'Admin Kyaw Kyaw', 1, '2026-01-20 07:37:16', '2026-01-29 05:10:53'),
 (3, 'kyawkyaw', 'kyawkyaw@gmail.com', '$2b$12$/U6pQdKv7f6k8qH7ID6n7OygHi1wA0VayrcMUsPvrKio2jxd5NdTK', 'Kyaw Kyaw', 0, '2026-01-21 04:45:16', '2026-01-21 04:45:32'),
 (4, 'John007', 'johnsmith222@gmail.com', '$2b$12$Bo8KDkT3VT8gk141BETRG.Cph5f5hpEX4jfj3Pj0dOL5b5U2hDQ8C', 'John Smith', 0, '2026-01-28 12:03:40', '2026-01-28 21:34:07'),
 (5, 'willam007', 'willam007@gamil.com', '$2b$12$wQD2Z5wvZ2nEFqRzP48HWeqtoKMtYrwBOE.mCQXT82WiELTXbZkMW', 'Willam Mikk', 0, '2026-01-28 23:00:44', '2026-01-28 23:05:23');

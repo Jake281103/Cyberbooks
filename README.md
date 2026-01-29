@@ -66,7 +66,6 @@ A comprehensive Flask-based e-commerce platform for cybersecurity educational re
    - 17 Security Tests (SQL Injection, XSS, CSRF, Path Traversal, etc.)
    - 100% test pass rate with 0 warnings
    - Coverage reports with pytest-cov
-   - See [TESTING_SUMMARY.md](TESTING_SUMMARY.md) for details
 
 10. **Security Testing** ⭐ NEW
     - SQL Injection prevention tests
@@ -241,8 +240,8 @@ The application will be available at `http://localhost:5000`
 ## Default Credentials
 
 **Admin Account:**
-- Username: `admin`
-- Password: `admin123`
+- Username: `admin123`
+- Password: `Admin@12345`
 
 ⚠️ **Important**: Change the admin password immediately in production!
 
@@ -434,29 +433,6 @@ flask db migrate -m "Description of changes"
 flask db upgrade
 ```
 
-## Production Deployment
-
-1. **Update Configuration**
-   - Set `FLASK_ENV=production`
-   - Use strong SECRET_KEY
-   - Configure production database
-   - Enable HTTPS
-
-2. **Security Checklist**
-   - Change default admin password
-   - Use environment variables for secrets
-   - Enable Flask-Talisman
-   - Set up SSL/TLS certificates
-   - Configure firewall rules
-   - Regular security updates
-
-3. **WSGI Server**
-   ```bash
-   pip install gunicorn
-   gunicorn -w 4 -b 0.0.0.0:8000 run:app
-   ```
-
-## Troubleshooting
 
 ### Database Connection Issues
 - Verify MySQL is running
@@ -472,14 +448,3 @@ flask db upgrade
 - Delete migrations folder and reinitialize
 - Drop and recreate database if necessary
 
-## License
-
-MIT License - Educational purposes
-
-## Support
-
-For issues and questions, please refer to the project documentation or contact the development team.
-
----
-
-**CyberBooks** - Securing Knowledge, One Book at a Time 🔐📚

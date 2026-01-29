@@ -86,8 +86,8 @@ Coverage report available in `htmlcov/index.html`
 ## Default Login Credentials
 
 **Admin Account:**
-- Username: `admin`
-- Password: `admin123`
+- Username: `admin123`
+- Password: `Admin@12345`
 
 **Test Payment Card (Stripe Test Mode):**
 - Card Number: `4242 4242 4242 4242`
@@ -324,84 +324,6 @@ flask db migrate -m "migration message"
 flask db upgrade
 ```
 
-## Next Steps
-
-1. **Verify Everything Works**
-   - Run tests: `python manage.py` → Option 11
-   - All 43 tests should pass ✅
-
-2. **Add Real Books**
-   - Login as admin
-   - Use admin panel to add books
-   - Upload book files to `app/static/books/`
-
-3. **Customize Categories**
-   - Use admin panel to create categories
-   - Or update database directly
-
-4. **Setup Stripe (Production)**
-   - Use live keys (pk_live_... and sk_live_...)
-   - Configure webhook endpoint
-   - Test with real cards
-
-5. **Change Admin Password**
-   - Login as admin
-   - Change password in user settings
-   - Or update database directly
-
-6. **Test Payment Flow**
-   - Use test card: 4242 4242 4242 4242
-   - Create account and purchase book
-   - Verify order created and download works
-
-7. **Run Security Tests**
-   - Verify all 17 security tests pass
-   - Review security test results
-   - Check for any vulnerabilities
-
-8. **Customize Styling**
-   - Edit `app/static/css/style.css`
-   - Modify HTML templates in `app/templates/`
-   - Update colors, fonts, layout
-
-## Production Deployment Checklist
-
-Before deploying to production:
-
-### Security
-- [ ] Set `FLASK_ENV=production` in .env
-- [ ] Generate strong, random SECRET_KEY
-- [ ] Change default admin password
-- [ ] Set up proper MySQL user (limited privileges)
-- [ ] Enable HTTPS with SSL/TLS certificates
-- [ ] Configure security headers (Talisman)
-- [ ] Run all tests: `pytest tests/ -v`
-- [ ] Run security tests: `pytest tests/test_security.py -v`
-
-### Payment Processing
-- [ ] Switch to Stripe live keys (pk_live_... and sk_live_...)
-- [ ] Configure production webhook endpoint
-- [ ] Test with real payment cards
-- [ ] Verify order creation and email notifications
-
-### Server Setup
-- [ ] Use production WSGI server (gunicorn)
-- [ ] Set up proper error logging
-- [ ] Configure automated backups
-- [ ] Set up monitoring and alerts
-- [ ] Configure firewall rules
-- [ ] Enable database encryption
-
-### Deployment Command
-```bash
-pip install gunicorn
-gunicorn -w 4 -b 0.0.0.0:8000 run:app
-```
-
 ## Need Help?
 
 Check the main README.md for detailed documentation.
-
----
-
-Happy Coding! 🚀
